@@ -46,7 +46,7 @@ jobs:
       - name: Build
         env:
           I2P_BUILD: ${{ github.run_number }}
-        run: ./gradlew --no-daemon --no-configuration-cache -Pandroid.injected.build.abi=arm64-v8a assembleGithubRelease
+        run: ./gradlew --no-daemon --no-configuration-cache -Pi2pd.abis=arm64-v8a assembleGithubRelease
 
       - name: Release
         env:
@@ -55,9 +55,11 @@ jobs:
           version=$(sed -n 's/^def getVersionCode = { -> return \([0-9]*\) }/1.\1/p' app/build.gradle)
           tag=i2p-$version-b${{ github.run_number }}
           apk=FairEmail-$tag.apk
-          # with an injected ABI the APK stays in intermediates
-          built=$(find app/build/outputs/apk app/build/intermediates/apk -path '*github*' -path '*release*' -name '*.apk' | head -1)
+          built=$(find app/build/outputs/apk -path '*github*' -path '*release*' -name '*.apk' | head -1)
           echo "APK: $built"
           cp "$built" "$apk"
+          # an APK marked test-only can not update itself
+          aapt2=$(ls -d "$ANDROID_HOME"/build-tools/* | tail -1)/aapt2
+          ! "$aapt2" dump badging "$apk" | grep -q testOnly
           gh release create "$tag" "$apk" --target "$GITHUB_SHA" --title "FairEmail I2P $version (b${{ github.run_number }})" \
             --notes "FairEmail $version with built-in I2P mail. Commit $GITHUB_SHA."
