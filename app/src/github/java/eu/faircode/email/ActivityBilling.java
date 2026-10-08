@@ -256,6 +256,9 @@ public class ActivityBilling extends ActivityBase implements
     }
 
     static boolean isPro(Context context) {
+        // FairEmail I2P: a personal build, all features on
+        if (I2pUpdate.enabled())
+            return true;
         if (BuildConfig.DEBUG && false)
             return true;
         if (context == null)
