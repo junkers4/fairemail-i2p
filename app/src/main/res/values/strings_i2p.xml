@@ -17,8 +17,8 @@
     <string name="title_setup_i2p_done">I2P mail is set up</string>
     <string name="title_setup_i2p_waiting">Looking for Postman in the I2P network, attempt %1$d …</string>
     <string name="title_setup_i2p_timeout">The I2P router did not connect in time. Check the internet connection and try again.</string>
-    <string name="title_i2p_updated">FairEmail I2P updated to %1$s</string>
-    <string name="title_i2p_update_confirm">FairEmail I2P %1$s is ready: tap to install</string>
-    <string name="title_i2p_update_failed">FairEmail I2P %1$s could not be installed: %2$s</string>
-    <string name="title_i2p_upstream_pending">FairEmail %1$s is out, FairEmail I2P could not merge it yet</string>
+    <string name="title_i2p_updated">FairEmail updated to %1$s</string>
+    <string name="title_i2p_update_confirm">FairEmail %1$s is ready: tap to install</string>
+    <string name="title_i2p_update_failed">FairEmail %1$s could not be installed: %2$s</string>
+    <string name="title_i2p_upstream_pending">FairEmail %1$s is out, but could not be merged with I2P yet</string>
 </resources>

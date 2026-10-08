@@ -17,8 +17,8 @@
     <string name="title_setup_i2p_done">I2P mail je nastavený</string>
     <string name="title_setup_i2p_waiting">Hľadám Postmana v sieti I2P, pokus %1$d …</string>
     <string name="title_setup_i2p_timeout">I2P router sa nestihol pripojiť. Skontrolujte internet a skúste znova.</string>
-    <string name="title_i2p_updated">FairEmail I2P aktualizovaný na %1$s</string>
-    <string name="title_i2p_update_confirm">FairEmail I2P %1$s je pripravený: ťuknite na inštaláciu</string>
-    <string name="title_i2p_update_failed">FairEmail I2P %1$s sa nepodarilo nainštalovať: %2$s</string>
-    <string name="title_i2p_upstream_pending">Vyšiel FairEmail %1$s, FairEmail I2P ho zatiaľ nevedel zlúčiť</string>
+    <string name="title_i2p_updated">FairEmail aktualizovaný na %1$s</string>
+    <string name="title_i2p_update_confirm">FairEmail %1$s je pripravený: ťuknite na inštaláciu</string>
+    <string name="title_i2p_update_failed">FairEmail %1$s sa nepodarilo nainštalovať: %2$s</string>
+    <string name="title_i2p_upstream_pending">Vyšiel FairEmail %1$s, zatiaľ sa nepodarilo zlúčiť ho s I2P</string>
 </resources>
