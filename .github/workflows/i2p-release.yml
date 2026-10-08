@@ -55,6 +55,9 @@ jobs:
           version=$(sed -n 's/^def getVersionCode = { -> return \([0-9]*\) }/1.\1/p' app/build.gradle)
           tag=i2p-$version-b${{ github.run_number }}
           apk=FairEmail-$tag.apk
-          cp app/build/outputs/apk/github/release/*.apk "$apk"
+          # with an injected ABI the APK stays in intermediates
+          built=$(find app/build/outputs/apk app/build/intermediates/apk -path '*github*' -path '*release*' -name '*.apk' | head -1)
+          echo "APK: $built"
+          cp "$built" "$apk"
           gh release create "$tag" "$apk" --target "$GITHUB_SHA" --title "FairEmail I2P $version (b${{ github.run_number }})" \
             --notes "FairEmail $version with built-in I2P mail. Commit $GITHUB_SHA."
