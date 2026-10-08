@@ -1705,6 +1705,8 @@ public class ActivityView extends ActivityBilling implements FragmentManager.OnB
     }
 
     private void checkUpdate(boolean always) {
+        if (always && I2pUpdate.checkNow(this))
+            return;
         if (Helper.isPlayStoreInstall())
             return;
         if (!Helper.hasValidFingerprint(this) && !(always && BuildConfig.DEBUG))

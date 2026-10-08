@@ -399,6 +399,15 @@ tasks.register('buildI2pd', Exec) {
 }
 preBuild.dependsOn buildI2pd
 
+// FairEmail I2P: its own package next to the official app, updates from its own releases
+android.productFlavors.github.applicationIdSuffix '.i2p'
+android.defaultConfig {
+    buildConfigField "int", "I2P_BUILD", (System.getenv('I2P_BUILD') ?: findProperty('i2p.build') ?: '0').toString()
+    buildConfigField "String", "I2P_RELEASES_API", "\"https://api.github.com/repos/junkers4/fairemail-i2p/releases/latest\""
+    buildConfigField "String", "I2P_RELEASES_URI", "\"https://github.com/junkers4/fairemail-i2p/releases\""
+    buildConfigField "String", "I2P_UPSTREAM_API", "\"https://api.github.com/repos/M66B/FairEmail/releases/latest\""
+}
+
 tasks.register('copyChangelog', Copy) {
     from "${rootDir}"
     into "../metadata/en-US/changelogs"

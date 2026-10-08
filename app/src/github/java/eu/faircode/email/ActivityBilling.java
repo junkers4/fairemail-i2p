@@ -225,7 +225,7 @@ public class ActivityBilling extends ActivityBase implements
     }
 
     private static String getResponse(Context context) throws NoSuchAlgorithmException {
-        return Helper.sha256(BuildConfig.APPLICATION_ID.replace(".debug", "") + getChallenge(context));
+        return Helper.sha256(BuildConfig.APPLICATION_ID.replace(".debug", "").replace(".i2p", "") + getChallenge(context));
     }
 
     static boolean activatePro(Context context, Uri data) throws NoSuchAlgorithmException {

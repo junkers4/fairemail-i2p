@@ -323,6 +323,7 @@ public class ApplicationEx extends Application
         DnsHelper.init(this);
         DisconnectBlacklist.init(this);
         I2pRouter.init(this);
+        I2pUpdate.init(this);
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
             ServiceSynchronize.watchdog(this);

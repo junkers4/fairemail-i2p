@@ -1,0 +1,60 @@
+# FairEmail I2P: build, sign and release; the app installs releases tagged i2p-<version>-b<build>
+name: I2P release
+run-name: I2P release - ${{ github.sha }}
+
+on:
+  push:
+    branches: [i2p]
+    paths-ignore: ['.github/workflows/i2p-sync.yml', '*.md']
+  workflow_dispatch:
+
+concurrency: i2p-release
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: true
+
+      - uses: actions/setup-java@v5
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: NDK and CMake
+        run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "ndk;27.3.13750724" "cmake;3.22.1" > /dev/null
+
+      - name: Signing key
+        env:
+          KEYSTORE: ${{ secrets.I2P_KEYSTORE }}
+          KEYSTORE_PASSWORD: ${{ secrets.I2P_KEYSTORE_PASSWORD }}
+        run: |
+          echo "$KEYSTORE" | base64 -d > "$RUNNER_TEMP/release.jks"
+          cat > keystore.properties <<PROPS
+          storeFile=$RUNNER_TEMP/release.jks
+          storePassword=$KEYSTORE_PASSWORD
+          keyAlias=fairemail-i2p
+          keyPassword=$KEYSTORE_PASSWORD
+          PROPS
+
+      - name: Build
+        env:
+          I2P_BUILD: ${{ github.run_number }}
+        run: ./gradlew --no-daemon --no-configuration-cache -Pandroid.injected.build.abi=arm64-v8a assembleGithubRelease
+
+      - name: Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version=$(sed -n 's/^def getVersionCode = { -> return \([0-9]*\) }/1.\1/p' app/build.gradle)
+          tag=i2p-$version-b${{ github.run_number }}
+          apk=FairEmail-$tag.apk
+          cp app/build/outputs/apk/github/release/*.apk "$apk"
+          gh release create "$tag" "$apk" --target "$GITHUB_SHA" --title "FairEmail I2P $version (b${{ github.run_number }})" \
+            --notes "FairEmail $version with built-in I2P mail. Commit $GITHUB_SHA."

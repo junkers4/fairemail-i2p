@@ -1,0 +1,66 @@
+# FairEmail I2P follows M66B's releases: merge the latest release tag, then build it.
+# A merge conflict opens an issue and leaves the branch as it is.
+name: I2P sync
+
+on:
+  schedule:
+    - cron: '23 */4 * * *'
+  workflow_dispatch:
+
+concurrency: i2p-sync
+
+permissions:
+  contents: write
+  issues: write
+  actions: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: i2p
+          fetch-depth: 0
+
+      - name: Merge the latest upstream release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag=$(gh api repos/M66B/FairEmail/releases/latest --jq .tag_name)
+          git fetch --no-tags https://github.com/M66B/FairEmail.git "refs/tags/$tag:refs/tags/$tag"
+          if git merge-base --is-ancestor "$tag" HEAD; then
+            echo "Up to date with $tag"
+            exit 0
+          fi
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
+          git merge --no-commit --no-ff "$tag" || true
+          # The token may not change workflows: upstream's CI stays as it is here
+          for f in $(git diff --cached --name-only HEAD -- .github/workflows; git diff --name-only --diff-filter=U -- .github/workflows); do
+            if git cat-file -e "HEAD:$f" 2>/dev/null; then
+              git checkout HEAD -- "$f"
+            else
+              git rm -q -f --cached "$f"; rm -f "$f"
+            fi
+          done
+
+          files=$(git diff --name-only --diff-filter=U)
+          if [ -z "$files" ]; then
+            git commit -q --no-edit -m "Merge upstream $tag"
+            git push origin HEAD:i2p
+            gh workflow run i2p-release.yml --ref i2p
+          else
+            git merge --abort
+            title="Merge conflict with upstream $tag"
+            if [ -z "$(gh issue list --state open --search "in:title \"$title\"" --json number --jq '.[].number')" ]; then
+              gh issue create --title "$title" --body "Merging M66B's $tag into i2p conflicts in:
+          \`\`\`
+          $files
+          \`\`\`
+          Resolve locally: \`git fetch upstream tag $tag && git merge $tag\`, then push i2p."
+            fi
+            exit 1
+          fi
