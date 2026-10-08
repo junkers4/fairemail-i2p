@@ -664,6 +664,18 @@ public class ConnectionHelper {
         }
     }
 
+    // Android 17 local network protection: loopback (such as the I2P router's tunnels) needs no permission
+    static boolean needsLanPermission(String host) {
+        if (!isLocalAddress(host, false))
+            return false;
+        try {
+            return !InetAddress.getByName(host).isLoopbackAddress();
+        } catch (Throwable ex) {
+            Log.e(ex);
+            return true;
+        }
+    }
+
     static boolean isNumericAddress(String host) {
         // IPv4-mapped IPv6 can be 45 characters
         if (host == null || host.length() > 64)

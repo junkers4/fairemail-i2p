@@ -2371,4 +2371,20 @@ Systém Android môže požiadať o povolenie prístupu k vybranému priečinku,
         <item>Iné</item>
         <item>Mobil</item>
     </string-array>
+    <string name="title_setup_i2p">I2P mail (mail.i2p)</string>
+    <string name="title_setup_i2p_intro">Anonymná pošta cez Postmana v sieti I2P. FairEmail si spustí vlastný I2P router priamo v telefóne: nič ďalšie netreba inštalovať ani nastavovať. Prvé spustenie môže trvať pár minút.</string>
+    <string name="title_setup_i2p_existing">Už mám schránku</string>
+    <string name="title_setup_i2p_create">Vytvoriť novú schránku</string>
+    <string name="title_setup_i2p_your_name">Vaše meno (nepovinné)</string>
+    <string name="title_setup_i2p_mailbox">Názov schránky</string>
+    <string name="title_setup_i2p_create_hint">Z internetu vám pošta príde na MENO@i2pmail.org. Odoslať sa dá najviac 20 mailov denne.</string>
+    <string name="title_setup_i2p_router">I2P router: %1$s</string>
+    <string name="title_setup_i2p_starting">spúšťa sa</string>
+    <string name="title_setup_i2p_connecting">pripája sa, %1$d routerov, %2$d tunelov</string>
+    <string name="title_setup_i2p_registering">Vytváram schránku u Postmana …</string>
+    <string name="title_setup_i2p_checking">Prihlasujem sa u Postmana …</string>
+    <string name="title_setup_i2p_created">Schránka vytvorená. Postman ju aktivuje do 5 minút, potom začne chodiť pošta.</string>
+    <string name="title_setup_i2p_done">I2P mail je nastavený</string>
+    <string name="title_setup_i2p_waiting">Hľadám Postmana v sieti I2P, pokus %1$d …</string>
+    <string name="title_setup_i2p_timeout">I2P router sa nestihol pripojiť. Skontrolujte internet a skúste znova.</string>
 </resources>

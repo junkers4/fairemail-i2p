@@ -84,6 +84,9 @@ android {
             java.srcDirs = ['src/main/java', 'src/amazon/java', 'src/extra/java']
         }
         main.res.srcDirs += 'src/main/resExtra'
+        // The I2P router, built from source by i2pd/build.sh
+        main.jniLibs.srcDirs += "${rootDir}/build/i2pd/jniLibs"
+        main.assets.srcDirs += "${rootDir}/build/i2pd/assets"
     }
 
     lint {
@@ -373,6 +376,28 @@ tasks.register('copyMarkdown', Copy) {
 }
 
 preBuild.dependsOn copyMarkdown
+
+// i2pd from pinned, checksummed sources; ABIs: -Pi2pd.abis=arm64-v8a,... or the injected/all ABIs
+def i2pdAbis = (findProperty('i2pd.abis') ?: findProperty('android.injected.build.abi') ?:
+        'arm64-v8a,armeabi-v7a,x86,x86_64').toString().split(',').collect { it.trim() }
+def i2pdNdk = androidComponents.sdkComponents.ndkDirectory
+def i2pdSdk = androidComponents.sdkComponents.sdkDirectory
+def i2pdRoot = rootDir.absolutePath
+tasks.register('buildI2pd', Exec) {
+    workingDir rootDir
+    executable 'bash'
+    argumentProviders.add(new CommandLineArgumentProvider() {
+        @Override
+        Iterable<String> asArguments() {
+            return ["${i2pdRoot}/i2pd/build.sh".toString(),
+                    i2pdNdk.get().asFile.absolutePath,
+                    new File(i2pdSdk.get().asFile, 'cmake/3.22.1').absolutePath,
+                    "${i2pdRoot}/build/i2pd-work".toString(),
+                    "${i2pdRoot}/build/i2pd".toString()] + i2pdAbis
+        }
+    })
+}
+preBuild.dependsOn buildI2pd
 
 tasks.register('copyChangelog', Copy) {
     from "${rootDir}"

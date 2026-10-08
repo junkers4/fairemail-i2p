@@ -342,6 +342,10 @@ public class FragmentSetup extends FragmentBase implements SharedPreferences.OnS
                 menu.add(Menu.NONE, R.string.title_setup_other, order++, R.string.title_setup_other)
                         .setIcon(R.drawable.twotone_auto_fix_high_24);
 
+                if (I2pRouter.isSupported())
+                    menu.add(Menu.NONE, R.string.title_setup_i2p, order++, R.string.title_setup_i2p)
+                            .setIcon(R.drawable.twotone_vpn_key_24);
+
                 // Gmail / account manager
                 {
                     Resources res = context.getResources();
@@ -396,6 +400,9 @@ public class FragmentSetup extends FragmentBase implements SharedPreferences.OnS
                         } else if (itemId == R.string.title_setup_other) {
                             lbm.sendBroadcast(new Intent(ActivitySetup.ACTION_QUICK_SETUP)
                                     .putExtra("title", itemId));
+                            return true;
+                        } else if (itemId == R.string.title_setup_i2p) {
+                            new FragmentDialogI2p().show(getParentFragmentManager(), "setup:i2p");
                             return true;
                         } else if (itemId == R.string.title_setup_imap) {
                             ibManual.setPressed(true);
