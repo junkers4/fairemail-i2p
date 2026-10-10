@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- FairEmail I2P, kept apart from strings.xml so upstream merges stay clean -->
 <resources>
+    <string name="title_setup_own">Own mail server</string>
+    <string name="title_setup_own_hint">For a mail server of your own. Its settings are read only from your domain: its SRV records, then its usual host names (mail., imap., smtp.). Your address is not sent to Mozilla, Microsoft or any other directory. An untrusted certificate is shown for you to check before anything is saved.</string>
     <string name="title_setup_i2p">I2P mail (mail.i2p)</string>
     <string name="title_setup_i2p_intro">Anonymous mail with Postman over the I2P network. FairEmail runs its own I2P router on this device: nothing else to install or set up. The first start can take a few minutes.</string>
     <string name="title_setup_i2p_existing">I have a mailbox</string>

@@ -668,6 +668,36 @@ public class EmailProvider implements Parcelable {
     }
 
     @NonNull
+    static List<EmailProvider> fromOwnDomain(Context context, String email, IDiscovery intf) throws IOException {
+        // A server of one's own: look only at the domain itself -- its SRV records (RFC 6186),
+        // then its usual host names. The address is not sent to Mozilla's ISPDB, to Microsoft's
+        // autodiscover or to any other directory, and no bundled provider profile is matched.
+        int at = email.indexOf('@');
+        String domain = (at < 0 ? email : email.substring(at + 1)).toLowerCase(Locale.ROOT);
+        if (TextUtils.isEmpty(domain))
+            throw new UnknownHostException(context.getString(R.string.title_setup_no_settings, domain));
+
+        List<EmailProvider> result = new ArrayList<>();
+        try {
+            result.add(fromDNS(context, domain, Discover.ALL, intf));
+        } catch (Throwable ex) {
+            Log.w(ex);
+        }
+        if (result.isEmpty())
+            try {
+                result.add(fromScan(context, domain, Discover.ALL, intf));
+            } catch (Throwable ex) {
+                Log.w(ex);
+            }
+        if (result.isEmpty())
+            throw new UnknownHostException(context.getString(R.string.title_setup_no_settings, domain));
+
+        for (EmailProvider provider : result)
+            EntityLog.log(context, "Own server imap=" + provider.imap + " smtp=" + provider.smtp);
+        return result;
+    }
+
+    @NonNull
     private static List<EmailProvider> _fromDomain(Context context, String domain, String email, Discover discover, IDiscovery intf) {
         List<EmailProvider> result = new ArrayList<>();
 

@@ -109,6 +109,7 @@ public class FragmentQuickSetup extends FragmentBase {
 
     private int title;
     private boolean update;
+    private boolean own;
     private EmailProvider bestProvider = null;
     private Bundle bestArgs = null;
 
@@ -128,6 +129,7 @@ public class FragmentQuickSetup extends FragmentBase {
         Bundle args = getArguments();
         title = args.getInt("title", R.string.title_setup_other);
         update = args.getBoolean("update", true);
+        own = args.getBoolean("own", false);
 
         lockOrientation();
     }
@@ -181,6 +183,13 @@ public class FragmentQuickSetup extends FragmentBase {
         grpManual = view.findViewById(R.id.grpManual);
 
         // Wire controls
+
+        if (own) {
+            // Nothing is asked of Mozilla's directory here, so its privacy policy does not apply
+            ((TextView) view.findViewById(R.id.tvTitle)).setText(R.string.title_setup_own_hint);
+            tvPrivacy.setVisibility(View.GONE);
+            tvPrivacyApp.setVisibility(View.GONE);
+        }
 
         tvPrivacy.setPaintFlags(tvPrivacy.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
         tvPrivacy.setOnClickListener(new View.OnClickListener() {
@@ -379,6 +388,7 @@ public class FragmentQuickSetup extends FragmentBase {
         args.putBoolean("update", cbUpdate.isChecked());
         args.putBoolean("check", check);
         args.putParcelable("best", bestProvider);
+        args.putBoolean("own", own);
 
         new SimpleTask<EmailProvider>() {
             @Override
@@ -424,14 +434,16 @@ public class FragmentQuickSetup extends FragmentBase {
 
                 Throwable fail = null;
                 List<EmailProvider> providers;
-                if (best == null)
-                    providers = EmailProvider.fromEmail(context, email, EmailProvider.Discover.ALL,
-                            new EmailProvider.IDiscovery() {
-                                @Override
-                                public void onStatus(String status) {
-                                    postProgress(status);
-                                }
-                            });
+                EmailProvider.IDiscovery discovery = new EmailProvider.IDiscovery() {
+                    @Override
+                    public void onStatus(String status) {
+                        postProgress(status);
+                    }
+                };
+                if (best == null && args.getBoolean("own"))
+                    providers = EmailProvider.fromOwnDomain(context, email, discovery);
+                else if (best == null)
+                    providers = EmailProvider.fromEmail(context, email, EmailProvider.Discover.ALL, discovery);
                 else
                     providers = Arrays.asList(best);
                 for (EmailProvider provider : providers)

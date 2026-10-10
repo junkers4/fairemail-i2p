@@ -705,6 +705,7 @@ public class ActivitySetup extends ActivityBase implements FragmentManager.OnBac
     private void onQuickSetup(Intent intent) {
         Bundle args = new Bundle();
         args.putInt("title", intent.getIntExtra("title", R.string.title_setup_other));
+        args.putBoolean("own", intent.getBooleanExtra("own", false));
 
         FragmentQuickSetup fragment = new FragmentQuickSetup();
         fragment.setArguments(args);

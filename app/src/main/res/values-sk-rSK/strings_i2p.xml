@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- FairEmail I2P, kept apart from strings.xml so upstream merges stay clean -->
 <resources>
+    <string name="title_setup_own">Vlastný mailový server</string>
+    <string name="title_setup_own_hint">Pre tvoj vlastný mailový server. Nastavenia sa čítajú len z tvojej domény: z jej SRV záznamov, potom z bežných mien serverov (mail., imap., smtp.). Tvoja adresa sa neposiela Mozille, Microsoftu ani žiadnemu inému adresáru. Nedôveryhodný certifikát ti ukáže na kontrolu skôr, než sa čokoľvek uloží.</string>
     <string name="title_setup_i2p">I2P mail (mail.i2p)</string>
     <string name="title_setup_i2p_intro">Anonymná pošta cez Postmana v sieti I2P. FairEmail si spustí vlastný I2P router priamo v telefóne: nič ďalšie netreba inštalovať ani nastavovať. Prvé spustenie môže trvať pár minút.</string>
     <string name="title_setup_i2p_existing">Už mám schránku</string>
