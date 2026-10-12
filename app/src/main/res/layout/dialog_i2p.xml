@@ -67,6 +67,23 @@
             android:textStyle="italic"
             android:visibility="gone" />
 
+        <Button
+            android:id="@+id/btnCertificate"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="@string/title_client_certificate"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tvCertificate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/title_setup_i2p_certificate_none"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small"
+            android:visibility="gone" />
+
         <RadioGroup
             android:id="@+id/rgMode"
             android:layout_width="match_parent"

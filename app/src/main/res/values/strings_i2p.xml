@@ -27,6 +27,8 @@
     <string name="title_setup_i2p_server_connecting">Connecting to %1$s …</string>
     <string name="title_setup_i2p_server_mismatch">The server shows a different certificate for SMTP and POP3</string>
     <string name="title_setup_i2p_server_confirm">Server certificate fingerprint:\n%1$s\nCompare it with the one setup.sh printed on the server. If they are the same, tap OK to trust it.</string>
+    <string name="title_setup_i2p_certificate_none">No client certificate. If setup.sh made one, install its .p12 file on this phone and select it: the server lets only it in.</string>
+    <string name="title_setup_i2p_certificate">Client certificate: %1$s</string>
     <string name="title_i2p_updated">FairEmail updated to %1$s</string>
     <string name="title_i2p_update_confirm">FairEmail %1$s is ready: tap to install</string>
     <string name="title_i2p_update_failed">FairEmail %1$s could not be installed: %2$s</string>

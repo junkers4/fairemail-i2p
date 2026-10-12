@@ -42,6 +42,7 @@ import com.google.android.material.textfield.TextInputLayout;
 
 import java.security.cert.X509Certificate;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import javax.mail.AuthenticationFailedException;
@@ -51,6 +52,8 @@ public class FragmentDialogI2p extends FragmentDialogBase {
     private RadioGroup rgRouter;
     private EditText etServer;
     private TextView tvServerHint;
+    private Button btnCertificate;
+    private TextView tvCertificate;
     private RadioGroup rgMode;
     private EditText etName;
     private EditText etMailbox;
@@ -63,6 +66,9 @@ public class FragmentDialogI2p extends FragmentDialogBase {
     // The server certificate the user was shown, trusted on the next OK
     private String shownServer = null;
     private String shownFingerprint = null;
+
+    // The client certificate the server lets in, an alias in the Android key chain
+    private String certificate = null;
 
     private static final long ROUTER_WAIT = 10 * 60 * 1000L; // milliseconds
     private static final long POSTMAN_WAIT = 6 * 60 * 1000L; // milliseconds
@@ -90,6 +96,8 @@ public class FragmentDialogI2p extends FragmentDialogBase {
         rgRouter = dview.findViewById(R.id.rgRouter);
         etServer = dview.findViewById(R.id.etServer);
         tvServerHint = dview.findViewById(R.id.tvServerHint);
+        btnCertificate = dview.findViewById(R.id.btnCertificate);
+        tvCertificate = dview.findViewById(R.id.tvCertificate);
         rgMode = dview.findViewById(R.id.rgMode);
         etName = dview.findViewById(R.id.etName);
         etMailbox = dview.findViewById(R.id.etMailbox);
@@ -105,8 +113,28 @@ public class FragmentDialogI2p extends FragmentDialogBase {
                 boolean remote = (checkedId == R.id.rbRemote);
                 etServer.setVisibility(remote ? View.VISIBLE : View.GONE);
                 tvServerHint.setVisibility(remote ? View.VISIBLE : View.GONE);
+                btnCertificate.setVisibility(remote ? View.VISIBLE : View.GONE);
+                tvCertificate.setVisibility(remote ? View.VISIBLE : View.GONE);
             }
         });
+
+        btnCertificate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Helper.selectKeyAlias(getActivity(), FragmentDialogI2p.this, null, new Helper.IKeyAlias() {
+                    @Override
+                    public void onSelected(String alias) {
+                        setCertificate(alias);
+                    }
+
+                    @Override
+                    public void onNothingSelected() {
+                        setCertificate(null);
+                    }
+                });
+            }
+        });
+        setCertificate(I2pRouter.getRemoteCertificateAlias(context));
 
         String remote = I2pRouter.getRemote(context);
         etServer.setText(remote);
@@ -164,6 +192,7 @@ public class FragmentDialogI2p extends FragmentDialogBase {
         args.putBoolean("remote", remote);
         args.putString("server", remote ? server : null);
         args.putString("fingerprint", remote && server.equals(shownServer) ? shownFingerprint : null);
+        args.putString("certificate", remote ? certificate : null);
         args.putBoolean("create", create);
         args.putString("name", etName.getText().toString().trim());
         args.putString("mailbox", I2pPostman.normalize(etMailbox.getText().toString()));
@@ -195,6 +224,7 @@ public class FragmentDialogI2p extends FragmentDialogBase {
                 boolean remote = args.getBoolean("remote");
                 String server = args.getString("server");
                 String fingerprint = args.getString("fingerprint");
+                String certificate = args.getString("certificate");
                 boolean create = args.getBoolean("create");
                 String name = args.getString("name");
                 String mailbox = args.getString("mailbox");
@@ -203,8 +233,8 @@ public class FragmentDialogI2p extends FragmentDialogBase {
                 if (remote) {
                     // Own router: its self-signed certificate is pinned once the user confirmed it
                     postProgress(context.getString(R.string.title_setup_i2p_server_connecting, server));
-                    X509Certificate pop = I2pRouter.getRemoteCertificate(server, I2pRouter.REMOTE_POP3_PORT);
-                    X509Certificate smtp = I2pRouter.getRemoteCertificate(server, I2pRouter.REMOTE_SMTP_PORT);
+                    X509Certificate pop = I2pRouter.getRemoteCertificate(context, server, I2pRouter.REMOTE_POP3_PORT, certificate);
+                    X509Certificate smtp = I2pRouter.getRemoteCertificate(context, server, I2pRouter.REMOTE_SMTP_PORT, certificate);
                     String fp = EntityCertificate.getKeyFingerprint(pop);
                     if (fp == null || !fp.equals(EntityCertificate.getKeyFingerprint(smtp)))
                         throw new IllegalStateException(context.getString(R.string.title_setup_i2p_server_mismatch));
@@ -213,7 +243,7 @@ public class FragmentDialogI2p extends FragmentDialogBase {
                                 EntityCertificate.getFingerprintSha1(pop)), server, fp);
 
                     // Known as I2P from now on, for the long timeouts Postman needs
-                    I2pRouter.setRemote(context, server);
+                    I2pRouter.setRemote(context, server, certificate);
 
                     if (!create) {
                         postProgress(context.getString(R.string.title_setup_i2p_checking));
@@ -227,13 +257,13 @@ public class FragmentDialogI2p extends FragmentDialogBase {
                                             false, server, I2pRouter.REMOTE_POP3_PORT,
                                             AUTH_TYPE_PASSWORD, null,
                                             mailbox, password,
-                                            null, fp);
+                                            certificate, fp);
                                 }
                                 return null;
                             }
                         });
 
-                        save(context, name, mailbox, password, server, fp);
+                        save(context, name, mailbox, password, server, fp, certificate);
                         I2pRouter.init(context); // stops the local router when nothing uses it anymore
                         return null;
                     }
@@ -273,7 +303,7 @@ public class FragmentDialogI2p extends FragmentDialogBase {
                         throw new IllegalArgumentException(outcome.message);
                     args.putBoolean("created", true);
                     if (remote) {
-                        save(context, name, mailbox, password, server, fingerprint);
+                        save(context, name, mailbox, password, server, fingerprint, certificate);
                         I2pRouter.init(context);
                         return null;
                     }
@@ -297,7 +327,7 @@ public class FragmentDialogI2p extends FragmentDialogBase {
                     });
                 }
 
-                save(context, name, mailbox, password, null, null);
+                save(context, name, mailbox, password, null, null, null);
                 return null;
             }
 
@@ -356,6 +386,7 @@ public class FragmentDialogI2p extends FragmentDialogBase {
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(!busy);
         rgRouter.setEnabled(!busy);
         etServer.setEnabled(!busy);
+        btnCertificate.setEnabled(!busy);
         rgMode.setEnabled(!busy);
         etName.setEnabled(!busy);
         etMailbox.setEnabled(!busy);
@@ -365,11 +396,70 @@ public class FragmentDialogI2p extends FragmentDialogBase {
             tvError.setVisibility(View.GONE);
     }
 
+    private void setCertificate(String alias) {
+        certificate = alias;
+        tvCertificate.setText(alias == null
+                ? getString(R.string.title_setup_i2p_certificate_none)
+                : getString(R.string.title_setup_i2p_certificate, alias));
+    }
+
+    // The same mailbox set up before, over the other router: switch it over,
+    // keeping its messages, instead of adding a second account
+    private static boolean move(Context context, String mailbox, String password,
+                                String server, String fingerprint, String certificate) {
+        boolean remote = (server != null);
+        DB db = DB.getInstance(context);
+        try {
+            db.beginTransaction();
+            List<EntityAccount> existing = db.account().getAccounts(mailbox, EntityAccount.TYPE_POP);
+            if (existing != null)
+                for (EntityAccount account : existing) {
+                    if (!(I2pRouter.isI2p(context, account.host, account.port) ||
+                            (remote && server.equalsIgnoreCase(account.host))))
+                        continue;
+                    account.host = (remote ? server : I2pRouter.HOST);
+                    account.encryption = (remote ? EmailService.ENCRYPTION_SSL : EmailService.ENCRYPTION_NONE);
+                    account.port = (remote ? I2pRouter.REMOTE_POP3_PORT : I2pRouter.POP3_PORT);
+                    account.fingerprint = fingerprint;
+                    account.certificate_alias = certificate;
+                    account.password = password;
+                    account.synchronize = true;
+                    db.account().updateAccount(account);
+                    EntityLog.log(context, "I2P moved account=" + account.name + " to " + account.host);
+
+                    for (EntityIdentity identity : db.identity().getIdentities(account.id)) {
+                        if (!I2pRouter.isI2p(context, identity.host, identity.port) &&
+                                !(remote && server.equalsIgnoreCase(identity.host)))
+                            continue;
+                        identity.host = account.host;
+                        identity.encryption = account.encryption;
+                        identity.port = (remote ? I2pRouter.REMOTE_SMTP_PORT : I2pRouter.SMTP_PORT);
+                        identity.fingerprint = fingerprint;
+                        identity.certificate_alias = certificate;
+                        identity.password = password;
+                        db.identity().updateIdentity(identity);
+                    }
+
+                    db.setTransactionSuccessful();
+                    return true;
+                }
+        } finally {
+            db.endTransaction();
+        }
+        return false;
+    }
+
     // server: null for the router on this device
     private static void save(Context context, String name, String mailbox, String password,
-                             String server, String fingerprint) {
+                             String server, String fingerprint, String certificate) {
         boolean remote = (server != null);
         String email = mailbox + "@" + I2pRouter.DOMAIN;
+
+        if (move(context, mailbox, password, server, fingerprint, certificate)) {
+            ServiceSynchronize.eval(context, "I2P moved");
+            FairEmailBackupAgent.dataChanged(context);
+            return;
+        }
 
         DB db = DB.getInstance(context);
         try {
@@ -383,6 +473,7 @@ public class FragmentDialogI2p extends FragmentDialogBase {
             account.encryption = (remote ? EmailService.ENCRYPTION_SSL : EmailService.ENCRYPTION_NONE);
             account.port = (remote ? I2pRouter.REMOTE_POP3_PORT : I2pRouter.POP3_PORT);
             account.fingerprint = fingerprint;
+            account.certificate_alias = certificate;
             account.auth_type = AUTH_TYPE_PASSWORD;
             account.user = mailbox;
             account.password = password;
@@ -412,6 +503,7 @@ public class FragmentDialogI2p extends FragmentDialogBase {
             identity.encryption = (remote ? EmailService.ENCRYPTION_SSL : EmailService.ENCRYPTION_NONE);
             identity.port = (remote ? I2pRouter.REMOTE_SMTP_PORT : I2pRouter.SMTP_PORT);
             identity.fingerprint = fingerprint;
+            identity.certificate_alias = certificate;
             identity.auth_type = AUTH_TYPE_PASSWORD;
             identity.user = mailbox;
             identity.password = password;

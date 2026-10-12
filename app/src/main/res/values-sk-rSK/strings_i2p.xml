@@ -27,6 +27,8 @@
     <string name="title_setup_i2p_server_connecting">Pripájam sa na %1$s …</string>
     <string name="title_setup_i2p_server_mismatch">Server ukazuje pre SMTP a POP3 rôzne certifikáty</string>
     <string name="title_setup_i2p_server_confirm">Odtlačok certifikátu servera:\n%1$s\nPorovnajte ho s tým, ktorý vypísal setup.sh na serveri. Ak sú rovnaké, ťuknite na OK a bude dôveryhodný.</string>
+    <string name="title_setup_i2p_certificate_none">Bez klientskeho certifikátu. Ak ho setup.sh vyrobil, nainštalujte jeho súbor .p12 do telefónu a vyberte ho: server pustí len jeho.</string>
+    <string name="title_setup_i2p_certificate">Klientsky certifikát: %1$s</string>
     <string name="title_i2p_updated">FairEmail aktualizovaný na %1$s</string>
     <string name="title_i2p_update_confirm">FairEmail %1$s je pripravený: ťuknite na inštaláciu</string>
     <string name="title_i2p_update_failed">FairEmail %1$s sa nepodarilo nainštalovať: %2$s</string>

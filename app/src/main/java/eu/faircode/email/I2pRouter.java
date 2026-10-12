@@ -23,6 +23,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.os.Build;
+import android.security.KeyChain;
 import android.text.TextUtils;
 
 import androidx.preference.PreferenceManager;
@@ -39,14 +40,18 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.security.Principal;
+import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509ExtendedKeyManager;
 import javax.net.ssl.X509TrustManager;
 
 // An embedded i2pd (PurpleI2P) for Postman mail (mail.i2p).
@@ -76,6 +81,7 @@ public class I2pRouter {
 
     private static final String PREF_ENABLED = "i2p_router";
     private static final String PREF_REMOTE = "i2p_remote";
+    private static final String PREF_REMOTE_CERTIFICATE = "i2p_remote_certificate";
     private static final String DIR = "i2pd";
     private static final String BINARY = "libi2pd.so";
     private static final int ASSETS_VERSION = 1;
@@ -106,9 +112,18 @@ public class I2pRouter {
         return (TextUtils.isEmpty(remote) ? null : remote);
     }
 
-    static void setRemote(Context context, String host) {
+    // The client certificate one's own router lets in, an alias in the Android key chain
+    static String getRemoteCertificateAlias(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        prefs.edit().putString(PREF_REMOTE, host).apply();
+        return prefs.getString(PREF_REMOTE_CERTIFICATE, null);
+    }
+
+    static void setRemote(Context context, String host, String certificate) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        prefs.edit()
+                .putString(PREF_REMOTE, host)
+                .putString(PREF_REMOTE_CERTIFICATE, certificate)
+                .apply();
     }
 
     static boolean isEnabled(Context context) {
@@ -180,8 +195,9 @@ public class I2pRouter {
     }
 
     // The certificate of one's own router, read without trusting it: the user compares
-    // its fingerprint with the one the server setup printed, after which it is pinned
-    static X509Certificate getRemoteCertificate(String host, int port) throws Exception {
+    // its fingerprint with the one the server setup printed, after which it is pinned.
+    // A server that lets in only its own client certificate is shown the selected one.
+    static X509Certificate getRemoteCertificate(Context context, String host, int port, String certificate) throws Exception {
         TrustManager[] any = new TrustManager[]{new X509TrustManager() {
             @Override
             public void checkClientTrusted(X509Certificate[] chain, String authType) {
@@ -196,8 +212,47 @@ public class I2pRouter {
                 return new X509Certificate[0];
             }
         }};
+        KeyManager[] keys = null;
+        if (certificate != null) {
+            final PrivateKey key = KeyChain.getPrivateKey(context, certificate);
+            final X509Certificate[] chain = KeyChain.getCertificateChain(context, certificate);
+            if (key == null || chain == null)
+                throw new IllegalArgumentException(context.getString(R.string.title_no_key_selected));
+            keys = new KeyManager[]{new X509ExtendedKeyManager() {
+                @Override
+                public String chooseClientAlias(String[] keyType, Principal[] issuers, Socket socket) {
+                    return certificate;
+                }
+
+                @Override
+                public X509Certificate[] getCertificateChain(String alias) {
+                    return chain;
+                }
+
+                @Override
+                public PrivateKey getPrivateKey(String alias) {
+                    return key;
+                }
+
+                @Override
+                public String[] getClientAliases(String keyType, Principal[] issuers) {
+                    return new String[]{certificate};
+                }
+
+                @Override
+                public String[] getServerAliases(String keyType, Principal[] issuers) {
+                    return null;
+                }
+
+                @Override
+                public String chooseServerAlias(String keyType, Principal[] issuers, Socket socket) {
+                    return null;
+                }
+            }};
+        }
+
         SSLContext ssl = SSLContext.getInstance("TLS");
-        ssl.init(null, any, null);
+        ssl.init(keys, any, null);
         try (Socket socket = new Socket()) {
             socket.connect(new InetSocketAddress(host, port), 20 * 1000);
             socket.setSoTimeout(20 * 1000);
