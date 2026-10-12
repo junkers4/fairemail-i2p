@@ -1464,7 +1464,8 @@ public class ServiceSynchronize extends ServiceBase implements SharedPreferences
                 try {
                     long now = new Date().getTime();
                     long[] schedule = getSchedule(ServiceSynchronize.this);
-                    boolean scheduled = (schedule == null || (now >= schedule[0] && now < schedule[1]));
+                    boolean scheduled = (schedule == null || (now >= schedule[0] && now < schedule[1])) &&
+                            !ScreenLock.isPaused(ServiceSynchronize.this);
 
                     boolean work = false;
                     DB db = DB.getInstance(ServiceSynchronize.this);
@@ -3259,7 +3260,8 @@ public class ServiceSynchronize extends ServiceBase implements SharedPreferences
 
                 long[] schedule = getSchedule(ServiceSynchronize.this);
                 long now = new Date().getTime();
-                boolean scheduled = (schedule == null || (now >= schedule[0] && now < schedule[1]));
+                boolean scheduled = (schedule == null || (now >= schedule[0] && now < schedule[1])) &&
+                        !ScreenLock.isPaused(ServiceSynchronize.this);
 
                 if (command == null) {
                     command = new Bundle();
@@ -3347,7 +3349,8 @@ public class ServiceSynchronize extends ServiceBase implements SharedPreferences
 
         long now = new Date().getTime();
         long[] schedule = getSchedule(context);
-        boolean scheduled = (schedule == null || (now >= schedule[0] && now < schedule[1]));
+        boolean scheduled = (schedule == null || (now >= schedule[0] && now < schedule[1])) &&
+                !ScreenLock.isPaused(context);
 
         if (schedule != null) {
             long next = (now < schedule[0] ? schedule[0] : schedule[1]);

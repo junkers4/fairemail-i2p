@@ -290,6 +290,28 @@
                     app:switchPadding="12dp" />
 
                 <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/swSyncUnlocked"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="@string/title_advanced_sync_unlocked"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/swPollUnmetered"
+                    app:switchPadding="12dp" />
+
+                <TextView
+                    android:id="@+id/tvSyncUnlockedHint"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/title_advanced_sync_unlocked_hint"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textStyle="italic"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/swSyncUnlocked" />
+
+                <androidx.appcompat.widget.SwitchCompat
                     android:id="@+id/swSchedule"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -297,7 +319,7 @@
                     android:text="@string/title_advanced_schedule"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/swPollUnmetered"
+                    app:layout_constraintTop_toBottomOf="@id/tvSyncUnlockedHint"
                     app:switchPadding="12dp" />
 
                 <TextView

@@ -324,6 +324,7 @@ public class ApplicationEx extends Application
         DisconnectBlacklist.init(this);
         I2pRouter.init(this);
         I2pUpdate.init(this);
+        ScreenLock.init(this);
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
             ServiceSynchronize.watchdog(this);
@@ -443,6 +444,9 @@ public class ApplicationEx extends Application
                 case "schedule_day5":
                 case "schedule_day6":
                     ServiceSynchronize.reschedule(this);
+                    break;
+                case ScreenLock.PREF:
+                    ScreenLock.onChanged(this, "preference");
                     break;
                 case "check_blocklist":
                 case "use_blocklist":
