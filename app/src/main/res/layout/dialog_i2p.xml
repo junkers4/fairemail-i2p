@@ -29,6 +29,45 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Small" />
 
         <RadioGroup
+            android:id="@+id/rgRouter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp">
+
+            <RadioButton
+                android:id="@+id/rbLocal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="@string/title_setup_i2p_local" />
+
+            <RadioButton
+                android:id="@+id/rbRemote"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/title_setup_i2p_remote" />
+        </RadioGroup>
+
+        <EditText
+            android:id="@+id/etServer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/title_setup_i2p_server"
+            android:inputType="textUri"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tvServerHint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="@string/title_setup_i2p_server_hint"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small"
+            android:textStyle="italic"
+            android:visibility="gone" />
+
+        <RadioGroup
             android:id="@+id/rgMode"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

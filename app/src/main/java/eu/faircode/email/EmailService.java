@@ -447,10 +447,13 @@ public class EmailService implements AutoCloseable {
             String user, String password,
             ServiceAuthenticator.IAuthenticated intf,
             String certificate, String fingerprint) throws MessagingException {
-        if (!I2pRouter.isI2p(host, port)) {
+        if (!I2pRouter.isI2p(context, host, port)) {
             connectOnce(dnssec, host, port, auth, provider, user, password, intf, certificate, fingerprint);
             return;
         }
+
+        if (I2pRouter.HOST.equals(host))
+            I2pRouter.ensure(context);
 
         // A fresh I2P router accepts on the local tunnel before it can find Postman:
         // the stream then closes before the greeting, which JavaMail reports as an authentication failure
@@ -480,7 +483,7 @@ public class EmailService implements AutoCloseable {
             String certificate, String fingerprint) throws MessagingException {
         properties.put("fairemail.server", host);
 
-        if (I2pRouter.isI2p(host, port)) {
+        if (I2pRouter.isI2p(context, host, port)) {
             // Postman over I2P: the local tunnel accepts at once, but the greeting can take a minute
             String timeout = Integer.toString(I2pRouter.TIMEOUT * 1000);
             properties.put("mail." + protocol + ".timeout", timeout);

@@ -4,7 +4,7 @@
     <string name="title_setup_own">Own mail server</string>
     <string name="title_setup_own_hint">For a mail server of your own. Its settings are read only from your domain: its SRV records, then its usual host names (mail., imap., smtp.). Your address is not sent to Mozilla, Microsoft or any other directory. An untrusted certificate is shown for you to check before anything is saved.</string>
     <string name="title_setup_i2p">I2P mail (mail.i2p)</string>
-    <string name="title_setup_i2p_intro">Anonymous mail with Postman over the I2P network. FairEmail runs its own I2P router on this device: nothing else to install or set up. The first start can take a few minutes.</string>
+    <string name="title_setup_i2p_intro">Anonymous mail with Postman over the I2P network. FairEmail runs its own I2P router on this device: nothing else to install or set up, though it costs battery. The first start can take a few minutes. Or use a router on a server of your own.</string>
     <string name="title_setup_i2p_existing">I have a mailbox</string>
     <string name="title_setup_i2p_create">Create a new mailbox</string>
     <string name="title_setup_i2p_your_name">Your name (optional)</string>
@@ -19,6 +19,14 @@
     <string name="title_setup_i2p_done">I2P mail is set up</string>
     <string name="title_setup_i2p_waiting">Looking for Postman in the I2P network, attempt %1$d …</string>
     <string name="title_setup_i2p_timeout">The I2P router did not connect in time. Check the internet connection and try again.</string>
+    <string name="title_setup_i2p_local">I2P router on this phone</string>
+    <string name="title_setup_i2p_remote">I2P router on my own server (VPS, Raspberry Pi)</string>
+    <string name="title_setup_i2p_server">Server host name or IP address</string>
+    <string name="title_setup_i2p_server_hint">Saves battery: the phone runs no router and connects over TLS to ports 7669 (SMTP) and 7670 (POP3) of your server, set up with i2p-server/setup.sh. A new mailbox is still registered once over a router on this phone.</string>
+    <string name="title_setup_i2p_no_server">Enter the host name of your server</string>
+    <string name="title_setup_i2p_server_connecting">Connecting to %1$s …</string>
+    <string name="title_setup_i2p_server_mismatch">The server shows a different certificate for SMTP and POP3</string>
+    <string name="title_setup_i2p_server_confirm">Server certificate fingerprint:\n%1$s\nCompare it with the one setup.sh printed on the server. If they are the same, tap OK to trust it.</string>
     <string name="title_i2p_updated">FairEmail updated to %1$s</string>
     <string name="title_i2p_update_confirm">FairEmail %1$s is ready: tap to install</string>
     <string name="title_i2p_update_failed">FairEmail %1$s could not be installed: %2$s</string>

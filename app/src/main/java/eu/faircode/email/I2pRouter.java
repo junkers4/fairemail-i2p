@@ -39,18 +39,30 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.security.cert.X509Certificate;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 // An embedded i2pd (PurpleI2P) for Postman mail (mail.i2p).
 // The binary is shipped as libi2pd.so, so Android extracts it executable into the native library dir.
 // Everything listens on loopback only: SMTP 7659, POP3 7660, HTTP proxy 4444, console 7070.
+// A router of one's own (a VPS, a Raspberry Pi) can stand in for it, so the phone runs none:
+// see i2p-server/ for its setup. Its Postman tunnels are reached over TLS: SMTP 7669, POP3 7670.
 public class I2pRouter {
     static final String HOST = "127.0.0.1";
     static final int SMTP_PORT = 7659;
     static final int POP3_PORT = 7660;
     static final int PROXY_PORT = 4444;
     static final int CONSOLE_PORT = 7070;
+
+    static final int REMOTE_SMTP_PORT = 7669;
+    static final int REMOTE_POP3_PORT = 7670;
 
     static final String DOMAIN = "mail.i2p";
     static final String DOMAIN_CLEARNET = "i2pmail.org";
@@ -63,6 +75,7 @@ public class I2pRouter {
     static final long POSTMAN_RETRY = 10 * 1000L; // milliseconds
 
     private static final String PREF_ENABLED = "i2p_router";
+    private static final String PREF_REMOTE = "i2p_remote";
     private static final String DIR = "i2pd";
     private static final String BINARY = "libi2pd.so";
     private static final int ASSETS_VERSION = 1;
@@ -78,8 +91,24 @@ public class I2pRouter {
         return (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N);
     }
 
-    static boolean isI2p(String host, int port) {
-        return HOST.equals(host) && (port == SMTP_PORT || port == POP3_PORT);
+    static boolean isI2p(Context context, String host, int port) {
+        if (HOST.equals(host) && (port == SMTP_PORT || port == POP3_PORT))
+            return true;
+        String remote = getRemote(context);
+        return (remote != null && remote.equalsIgnoreCase(host) &&
+                (port == REMOTE_SMTP_PORT || port == REMOTE_POP3_PORT));
+    }
+
+    // The host name of one's own router, null when the router runs on this device
+    static String getRemote(Context context) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        String remote = prefs.getString(PREF_REMOTE, null);
+        return (TextUtils.isEmpty(remote) ? null : remote);
+    }
+
+    static void setRemote(Context context, String host) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        prefs.edit().putString(PREF_REMOTE, host).apply();
     }
 
     static boolean isEnabled(Context context) {
@@ -106,8 +135,77 @@ public class I2pRouter {
     }
 
     static void init(Context context) {
-        if (isSupported() && isEnabled(context))
+        if (!isSupported() || !isEnabled(context))
+            return;
+        Helper.getParallelExecutor().submit(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    // The router keeps the device busy: run it only for mail that goes through it
+                    if (isUsed(context))
+                        start(context);
+                    else {
+                        EntityLog.log(context, "I2P router not used");
+                        setEnabled(context, false);
+                    }
+                } catch (Throwable ex) {
+                    Log.e(ex);
+                }
+            }
+        });
+    }
+
+    // An account or identity on the local tunnels was enabled again after the router stopped
+    static void ensure(Context context) {
+        if (isSupported() && !isEnabled(context)) {
+            EntityLog.log(context, "I2P router needed again");
             setEnabled(context, true);
+        }
+    }
+
+    // Enabled accounts or identities on the local tunnels
+    private static boolean isUsed(Context context) {
+        DB db = DB.getInstance(context);
+        List<EntityAccount> accounts = db.account().getSynchronizingAccounts(EntityAccount.TYPE_POP);
+        if (accounts != null)
+            for (EntityAccount account : accounts)
+                if (HOST.equals(account.host) && account.port == POP3_PORT)
+                    return true;
+        List<TupleIdentityEx> identities = db.identity().getComposableIdentities(null);
+        if (identities != null)
+            for (TupleIdentityEx identity : identities)
+                if (HOST.equals(identity.host) && identity.port == SMTP_PORT)
+                    return true;
+        return false;
+    }
+
+    // The certificate of one's own router, read without trusting it: the user compares
+    // its fingerprint with the one the server setup printed, after which it is pinned
+    static X509Certificate getRemoteCertificate(String host, int port) throws Exception {
+        TrustManager[] any = new TrustManager[]{new X509TrustManager() {
+            @Override
+            public void checkClientTrusted(X509Certificate[] chain, String authType) {
+            }
+
+            @Override
+            public void checkServerTrusted(X509Certificate[] chain, String authType) {
+            }
+
+            @Override
+            public X509Certificate[] getAcceptedIssuers() {
+                return new X509Certificate[0];
+            }
+        }};
+        SSLContext ssl = SSLContext.getInstance("TLS");
+        ssl.init(null, any, null);
+        try (Socket socket = new Socket()) {
+            socket.connect(new InetSocketAddress(host, port), 20 * 1000);
+            socket.setSoTimeout(20 * 1000);
+            try (SSLSocket s = (SSLSocket) ssl.getSocketFactory().createSocket(socket, host, port, false)) {
+                s.startHandshake();
+                return (X509Certificate) s.getSession().getPeerCertificates()[0];
+            }
+        }
     }
 
     static synchronized void start(Context context) throws IOException {
