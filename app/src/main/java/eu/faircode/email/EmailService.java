@@ -452,10 +452,7 @@ public class EmailService implements AutoCloseable {
             return;
         }
 
-        if (I2pRouter.HOST.equals(host))
-            I2pRouter.ensure(context);
-
-        // A fresh I2P router accepts on the local tunnel before it can find Postman:
+        // A fresh I2P router accepts on its tunnel before it can find Postman:
         // the stream then closes before the greeting, which JavaMail reports as an authentication failure
         long until = new Date().getTime() + I2pRouter.POSTMAN_WAIT;
         for (int attempt = 1; ; attempt++)

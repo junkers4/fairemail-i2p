@@ -46,7 +46,7 @@ jobs:
       - name: Build
         env:
           I2P_BUILD: ${{ github.run_number }}
-        run: ./gradlew --no-daemon --no-configuration-cache -Pi2pd.abis=arm64-v8a assembleGithubRelease
+        run: ./gradlew --no-daemon --no-configuration-cache assembleGithubRelease
 
       - name: Release
         env:

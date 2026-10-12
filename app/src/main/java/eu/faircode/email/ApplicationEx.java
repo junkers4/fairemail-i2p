@@ -322,7 +322,6 @@ public class ApplicationEx extends Application
 
         DnsHelper.init(this);
         DisconnectBlacklist.init(this);
-        I2pRouter.init(this);
         I2pUpdate.init(this);
         ScreenLock.init(this);
 

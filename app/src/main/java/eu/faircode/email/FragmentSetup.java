@@ -345,9 +345,8 @@ public class FragmentSetup extends FragmentBase implements SharedPreferences.OnS
                 menu.add(Menu.NONE, R.string.title_setup_own, order++, R.string.title_setup_own)
                         .setIcon(R.drawable.twotone_dns_24);
 
-                if (I2pRouter.isSupported())
-                    menu.add(Menu.NONE, R.string.title_setup_i2p, order++, R.string.title_setup_i2p)
-                            .setIcon(R.drawable.twotone_vpn_key_24);
+                menu.add(Menu.NONE, R.string.title_setup_i2p, order++, R.string.title_setup_i2p)
+                        .setIcon(R.drawable.twotone_vpn_key_24);
 
                 // Gmail / account manager
                 {

@@ -32,22 +32,12 @@ import androidx.preference.PreferenceManager;
 
 // Synchronize only while the device is unlocked: locking pauses synchronization like the schedule does,
 // unlocking resumes it at once. On by default: with every account paused the sync service, and with it
-// its notification, quits, and the I2P router on this device stops too.
+// its notification, quits.
 public class ScreenLock {
     static final String PREF = "sync_unlocked";
 
-    private static Context app = null;
-
-    private static final Runnable stopRouter = new Runnable() {
-        @Override
-        public void run() {
-            if (app != null && isPaused(app))
-                I2pRouter.stop(app);
-        }
-    };
-
     static void init(Context context) {
-        app = context.getApplicationContext();
+        Context app = context.getApplicationContext();
         IntentFilter filter = new IntentFilter();
         filter.addAction(Intent.ACTION_SCREEN_OFF);
         filter.addAction(Intent.ACTION_SCREEN_ON);
@@ -89,11 +79,5 @@ public class ScreenLock {
 
         // Like a schedule boundary: disconnects or reconnects, and polls at once after unlocking
         ServiceSynchronize.reschedule(context);
-
-        ApplicationEx.getMainHandler().removeCallbacks(stopRouter);
-        if (paused)
-            ApplicationEx.getMainHandler().post(stopRouter);
-        else
-            I2pRouter.init(context);
     }
 }

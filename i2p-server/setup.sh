@@ -157,6 +157,8 @@ The app shows the certificate fingerprint of the server. It must be:
 
     $FP
 
+A new mailbox: ./register.py NAME on this server.
+
 i2pd needs a few minutes after its first start to find Postman. Test with:
     openssl s_client -connect $NAME:7670 -quiet \
         -cert $CLIENT_DIR/$PHONE.crt -key $CLIENT_DIR/$PHONE.key

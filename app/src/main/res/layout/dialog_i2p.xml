@@ -28,34 +28,14 @@
             android:text="@string/title_setup_i2p_intro"
             android:textAppearance="@style/TextAppearance.AppCompat.Small" />
 
-        <RadioGroup
-            android:id="@+id/rgRouter"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp">
-
-            <RadioButton
-                android:id="@+id/rbLocal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:checked="true"
-                android:text="@string/title_setup_i2p_local" />
-
-            <RadioButton
-                android:id="@+id/rbRemote"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/title_setup_i2p_remote" />
-        </RadioGroup>
-
         <EditText
             android:id="@+id/etServer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
             android:hint="@string/title_setup_i2p_server"
             android:inputType="textUri"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:visibility="gone" />
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
         <TextView
             android:id="@+id/tvServerHint"
@@ -64,8 +44,7 @@
             android:layout_marginTop="6dp"
             android:text="@string/title_setup_i2p_server_hint"
             android:textAppearance="@style/TextAppearance.AppCompat.Small"
-            android:textStyle="italic"
-            android:visibility="gone" />
+            android:textStyle="italic" />
 
         <Button
             android:id="@+id/btnCertificate"
@@ -73,36 +52,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:text="@string/title_client_certificate"
-            android:visibility="gone" />
+            android:text="@string/title_client_certificate" />
 
         <TextView
             android:id="@+id/tvCertificate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/title_setup_i2p_certificate_none"
-            android:textAppearance="@style/TextAppearance.AppCompat.Small"
-            android:visibility="gone" />
-
-        <RadioGroup
-            android:id="@+id/rgMode"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp">
-
-            <RadioButton
-                android:id="@+id/rbExisting"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:checked="true"
-                android:text="@string/title_setup_i2p_existing" />
-
-            <RadioButton
-                android:id="@+id/rbCreate"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/title_setup_i2p_create" />
-        </RadioGroup>
+            android:textAppearance="@style/TextAppearance.AppCompat.Small" />
 
         <EditText
             android:id="@+id/etName"
@@ -151,15 +108,6 @@
                 android:inputType="textPassword"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
         </com.google.android.material.textfield.TextInputLayout>
-
-        <TextView
-            android:id="@+id/tvCreateHint"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:text="@string/title_setup_i2p_create_hint"
-            android:textAppearance="@style/TextAppearance.AppCompat.Small"
-            android:textStyle="italic" />
 
         <ProgressBar
             android:id="@+id/pbWait"

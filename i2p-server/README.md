@@ -1,8 +1,9 @@
 # Vlastný I2P router pre FairEmail I2P
 
-I2P router (i2pd) v telefóne beží stále a berie batériu. Namiesto neho môže
-bežať na vlastnom serveri — na VPS alebo na Raspberry Pi doma — a telefón sa
-naň len pripája. Telefón potom nespúšťa žiadny router.
+FairEmail I2P nemá vlastný I2P router (od verzie b11 už nie je v aplikácii —
+bežal stále a bral batériu). I2P router (i2pd) beží na vlastnom serveri — na
+VPS alebo na Raspberry Pi doma — a telefón sa naň len pripája. Bez servera
+I2P pošta nejde.
 
 ```
 telefón (FairEmail) --TLS--> server :7669 SMTP / :7670 POP3
@@ -46,29 +47,35 @@ Raspberry Pi za NAT-om operátora (CGNAT) sa dá sprístupniť cez VPS rovnako a
 pošta: VPS posiela TCP 7669/7670 cez WireGuard na Pi (u nás `homelab`
 `mail/vps/nftables.conf`, `tcp_door`).
 
+## Nová schránka
+
+Na serveri (cez HTTP proxy i2pd, ktorá počúva len na `127.0.0.1`):
+
+```sh
+./register.py --check     # dostane sa i2pd k Postmanovi?
+./register.py meno        # spýta sa na heslo a vytvorí meno@mail.i2p
+```
+
+Postman schránku aktivuje do 5 minút. Z internetu na ňu píšu na
+`meno@i2pmail.org`, odoslať sa dá najviac 20 správ denne.
+
 ## Telefón
 
 Najprv súbor `.p12` skopírovať do telefónu a nainštalovať: Nastavenia >
 Zabezpečenie > Šifrovanie a poverenia > Inštalovať certifikát >
 **Certifikát používateľa VPN a aplikácií**, s heslom zo súboru `.password`.
 
-Potom Nastavenie > sprievodca > menu > **I2P mail (mail.i2p)** >
-**I2P router na mojom serveri**, zadať meno servera a tlačidlom
-**Klientsky certifikát** vybrať nainštalovaný certifikát.
+Potom Nastavenie > sprievodca > menu > **I2P mail (mail.i2p)**, zadať meno
+servera, tlačidlom **Klientsky certifikát** vybrať nainštalovaný certifikát
+a vyplniť schránku a heslo.
 
 Aplikácia ukáže odtlačok certifikátu servera. Ak sa zhoduje s tým, čo vypísal
 `setup.sh`, ťuknite znova na OK — certifikát sa uloží (pripne) do účtu aj
 identity a iný certifikát už aplikácia neprijme.
 
-- **Už mám schránku**: prihlásenie sa overí cez server, telefón nespustí nič.
-  Ak už táto schránka v aplikácii je (cez router v telefóne), prepne sa na
-  server a správy v nej zostanú — nevznikne druhý účet.
-- **Nová schránka**: registrácia u Postmana ide raz cez router v telefóne
-  (HTTP proxy servera nemá byť otvorená do internetu). Po registrácii sa router
-  v telefóne zastaví a pošta ide cez server.
-
-Router v telefóne sa odteraz spúšťa len vtedy, keď ho používa nejaký zapnutý
-účet alebo identita.
+Ak už táto schránka v aplikácii je (cez router, ktorý kedysi bežal v telefóne,
+alebo cez iný server), prepne sa na tento server a správy v nej zostanú —
+nevznikne druhý účet.
 
 ## Bezpečnosť
 
