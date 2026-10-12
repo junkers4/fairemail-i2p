@@ -34,5 +34,5 @@
     <string name="title_i2p_update_failed">FairEmail %1$s sa nepodarilo nainštalovať: %2$s</string>
     <string name="title_i2p_upstream_pending">Vyšiel FairEmail %1$s, zatiaľ sa nepodarilo zlúčiť ho s I2P</string>
     <string name="title_advanced_sync_unlocked">Synchronizovať len pri odomknutom zariadení</string>
-    <string name="title_advanced_sync_unlocked_hint">Šetrí batériu: zamknutím sa synchronizácia zastaví, po odomknutí sa hneď skontroluje nová pošta. Kým je zariadenie zamknuté, oznámenia o novej pošte neprídu. I2P router v zariadení sa vypne po 5 minútach v zamknutom stave.</string>
+    <string name="title_advanced_sync_unlocked_hint">Šetrí batériu: zamknutím sa synchronizácia zastaví, po odomknutí sa hneď skontroluje nová pošta. Kým je zariadenie zamknuté, oznámenia o novej pošte neprídu. Zamknutím sa ukončí aj služba na pozadí a I2P router v zariadení.</string>
 </resources>

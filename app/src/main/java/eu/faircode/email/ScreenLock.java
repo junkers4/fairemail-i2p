@@ -31,12 +31,10 @@ import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 
 // Synchronize only while the device is unlocked: locking pauses synchronization like the schedule does,
-// unlocking resumes it at once. The I2P router on this device stops after a while locked.
+// unlocking resumes it at once. On by default: with every account paused the sync service, and with it
+// its notification, quits, and the I2P router on this device stops too.
 public class ScreenLock {
     static final String PREF = "sync_unlocked";
-
-    // Quick unlocks should not restart the router each time
-    private static final long ROUTER_STOP_DELAY = 5 * 60 * 1000L; // milliseconds
 
     private static Context app = null;
 
@@ -73,7 +71,7 @@ public class ScreenLock {
 
     static boolean isEnabled(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        return prefs.getBoolean(PREF, false);
+        return prefs.getBoolean(PREF, true);
     }
 
     // Screen off, or the lock screen showing
@@ -94,7 +92,7 @@ public class ScreenLock {
 
         ApplicationEx.getMainHandler().removeCallbacks(stopRouter);
         if (paused)
-            ApplicationEx.getMainHandler().postDelayed(stopRouter, ROUTER_STOP_DELAY);
+            ApplicationEx.getMainHandler().post(stopRouter);
         else
             I2pRouter.init(context);
     }

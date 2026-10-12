@@ -678,7 +678,7 @@ public class FragmentOptionsSynchronize extends FragmentBase implements SharedPr
             swPollUnmetered.setChecked(prefs.getBoolean("poll_unmetered", false));
             grpExempted.setVisibility(pollInterval == 0 ? View.GONE : View.VISIBLE);
 
-            swSyncUnlocked.setChecked(prefs.getBoolean(ScreenLock.PREF, false));
+            swSyncUnlocked.setChecked(ScreenLock.isEnabled(getContext()));
             swSchedule.setChecked(prefs.getBoolean("schedule", false) && pro);
             swSchedule.setEnabled(pro);
 
