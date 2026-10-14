@@ -326,7 +326,7 @@ public class ServiceSynchronize extends ServiceBase implements SharedPreferences
                             initialized.add(current.accountState.id);
                             init(current);
                         }
-                        if (current.accountState.shouldRun(current.enabled))
+                        if (current.shouldRun())
                             runService = true;
                         if (!current.accountState.isTransient(ServiceSynchronize.this)) {
                             if (current.accountState.isEnabled(current.enabled))
@@ -399,7 +399,7 @@ public class ServiceSynchronize extends ServiceBase implements SharedPreferences
                                                     " start=" + current.canRun(ServiceSynchronize.this) +
                                                     " sync=" + sync +
                                                     " enabled=" + current.accountState.isEnabled(current.enabled) +
-                                                    " should=" + current.accountState.shouldRun(current.enabled) +
+                                                    " should=" + current.shouldRun() +
                                                     " changed=" + !prev.accountState.equals(current.accountState) +
                                                     " synchronize=" + current.accountState.synchronize +
                                                     " ondemand=" + current.accountState.ondemand +
@@ -3260,8 +3260,8 @@ public class ServiceSynchronize extends ServiceBase implements SharedPreferences
 
                 long[] schedule = getSchedule(ServiceSynchronize.this);
                 long now = new Date().getTime();
-                boolean scheduled = (schedule == null || (now >= schedule[0] && now < schedule[1])) &&
-                        !ScreenLock.isPaused(ServiceSynchronize.this);
+                boolean locked = ScreenLock.isPaused(ServiceSynchronize.this);
+                boolean scheduled = (schedule == null || (now >= schedule[0] && now < schedule[1])) && !locked;
 
                 if (command == null) {
                     command = new Bundle();
@@ -3273,6 +3273,7 @@ public class ServiceSynchronize extends ServiceBase implements SharedPreferences
                     result.add(new TupleAccountNetworkState(
                             enabled && (pollInterval == 0 || accountState.isExempted(ServiceSynchronize.this)),
                             scheduled,
+                            locked,
                             command,
                             networkState,
                             accountState));

@@ -37,12 +37,14 @@ public class TupleAccountNetworkState {
     @NonNull
     public TupleAccountState accountState;
 
+    private boolean locked;
     private JSONObject jconditions;
     private Boolean network_vpn_only;
 
     public TupleAccountNetworkState(
             boolean enabled,
             boolean scheduled,
+            boolean locked,
             @NonNull Bundle command,
             @NonNull ConnectionHelper.NetworkState networkState,
             @NonNull TupleAccountState accountState) {
@@ -61,6 +63,16 @@ public class TupleAccountNetworkState {
 
         if (!scheduled && !jconditions.optBoolean("ignore_schedule"))
             this.enabled = false;
+
+        this.locked = (locked && !jconditions.optBoolean("ignore_schedule"));
+    }
+
+    // While the device is locked pending operations do not keep the account, and with it the service, running:
+    // they cannot complete without connecting, and wait until unlocking
+    public boolean shouldRun() {
+        if (locked)
+            return accountState.isEnabled(enabled);
+        return accountState.shouldRun(enabled);
     }
 
     public boolean canConnect(Context context) {
@@ -76,7 +88,7 @@ public class TupleAccountNetworkState {
         if (!canConnect(context))
             return false;
 
-        return (this.networkState.isSuitable() && this.accountState.shouldRun(enabled));
+        return (this.networkState.isSuitable() && shouldRun());
     }
 
     @Override
