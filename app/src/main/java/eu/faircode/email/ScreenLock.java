@@ -31,8 +31,8 @@ import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 
 // Synchronize only while the device is unlocked: locking pauses synchronization like the schedule does,
-// unlocking resumes it at once. On by default: with every account paused the sync service, and with it
-// its notification, quits.
+// unlocking resumes it at once. On by default. While locked the sync service only waits, without connecting,
+// for the unlock, so new messages arrive and notify without opening the app.
 public class ScreenLock {
     static final String PREF = "sync_unlocked";
 

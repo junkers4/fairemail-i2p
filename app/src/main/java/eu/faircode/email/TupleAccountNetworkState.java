@@ -75,6 +75,12 @@ public class TupleAccountNetworkState {
         return accountState.shouldRun(enabled);
     }
 
+    // While the device is locked an account that synchronizes keeps the service, without connecting, waiting
+    // for the unlock: a cached app gets the unlock broadcast only when opened again, so nothing would refresh
+    public boolean waitsForUnlock(boolean enabled) {
+        return (locked && accountState.isEnabled(enabled));
+    }
+
     public boolean canConnect(Context context) {
         boolean unmetered = jconditions.optBoolean("unmetered");
         boolean vpn_only = jconditions.optBoolean("vpn_only");
