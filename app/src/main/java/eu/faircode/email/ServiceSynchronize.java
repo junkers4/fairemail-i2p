@@ -320,7 +320,7 @@ public class ServiceSynchronize extends ServiceBase implements SharedPreferences
                     boolean event = false;
                     boolean runFts = true;
                     boolean runService = false;
-                    boolean sync = PreferenceManager.getDefaultSharedPreferences(ServiceSynchronize.this)
+                    boolean syncEnabled = PreferenceManager.getDefaultSharedPreferences(ServiceSynchronize.this)
                             .getBoolean("enabled", true);
                     for (TupleAccountNetworkState current : accountNetworkStates) {
                         Log.d("### evaluating " + current);
@@ -328,7 +328,7 @@ public class ServiceSynchronize extends ServiceBase implements SharedPreferences
                             initialized.add(current.accountState.id);
                             init(current);
                         }
-                        if (current.shouldRun() || current.waitsForUnlock(sync))
+                        if (current.shouldRun() || current.waitsForUnlock(syncEnabled))
                             runService = true;
                         if (!current.accountState.isTransient(ServiceSynchronize.this)) {
                             if (current.accountState.isEnabled(current.enabled))
